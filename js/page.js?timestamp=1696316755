@@ -1,0 +1,507 @@
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+PIZZA4PS.pageScript = PIZZA4PS.pageScript || {
+  init: {}
+};
+PIZZA4PS.pageScript = function () {
+  // コンストラクタ  =================================================================
+  function init() {
+    $('.js-videoWrap')[0] && PIZZA4PS.common.initMoviePlayer();
+    $('.js-pageAccCaption')[0] && initMessageTab();
+    $('.js-nameList')[0] && initNameList();
+    $('.js-hotjobsList_node')[0] && initHotJobsList();
+    $('.js-pulldownTrigger')[0] && initpulldown();
+    $('.js-member')[0] && initMemberModal();
+    $('.js-scrollbar')[0] && initScrollBar();
+
+    // Carrer
+    $('.js-slideBlock')[0] && initCareerSlide();
+    $('.js-searchLink')[0] && initFindJob();
+    $('.js-loadData')[0] && initLoadData();
+    $('.js-members')[0] && initMembersPhoto();
+    $('.js-wow')[0] && initWowCount();
+    $('.js-contentBg')[0] && initCareerBackground();
+    $('.js-careerInfoMovie')[0] && initCareerMovie();
+  }
+  var currentWowCount = 0;
+  var wowCountBase = 14250000;
+  function initWowCount() {
+    getWowCount();
+    setInterval(function () {
+      getWowCount();
+    }, 60000);
+  }
+  function getWowCount() {
+    var $animEl = $('.js-wowAnimation');
+    var $countEl = $('.js-wowCount');
+    fetch(PIZZA4PS.data.wowApiUrl, {
+      headers: {
+        "x-api-key": PIZZA4PS.data.wowApiKey
+      }
+    }).then(function (response) {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Network response was not ok.');
+    }).then(function (data) {
+      if (currentWowCount != data.total) {
+        var wowCountLow = wowCountBase + data.total;
+        $countEl.text(wowCountLow.toLocaleString());
+        currentWowCount = data.total;
+        $animEl.addClass('is-animated').delay(3000).queue(function () {
+          $animEl.removeClass('is-animated');
+          $animEl.dequeue();
+        });
+        console.log('wow count!!! : ' + data.total);
+      } else {
+        console.log('wow through : ' + data.total);
+      }
+    }).catch(function (error) {
+      // エラーハンドリング
+      console.log('Fetch error:', error);
+    });
+  }
+  PIZZA4PS.data.$window.on('load', function () {
+    $('.js-inview')[0] && initInview();
+    $('.js-pageLead')[0] && initTextEffect();
+    $('.js-infoTabHead')[0] && initInfoTab();
+  });
+
+  /*
+  *   initpulldown
+  *
+  *
+  */
+  function initpulldown() {
+    $('.js-pulldownTrigger').on('click', togglePulldown);
+  }
+  function togglePulldown(e) {
+    var $self = $(e.currentTarget);
+    var $target = $self.next('.js-pulldownTarget');
+    var openClass = 'is-open';
+    if ($target.is(':animated')) return;
+    $self.toggleClass(openClass);
+    $target.slideToggle();
+  }
+
+  /*
+  *   initNameList
+  *
+  *
+  */
+  function initNameList() {
+    $('.js-nameList').on('click', toggleNameList);
+    $('.is-current .nameList_descriptionText').show();
+  }
+  function toggleNameList(e) {
+    $('.js-nameList').removeClass('is-current');
+    $(e.currentTarget).addClass('is-current');
+    if (PIZZA4PS.data.$MQ == 'PORTRAIT') {
+      var $target = $(e.currentTarget).find('.nameList_descriptionText');
+      $('.nameList_descriptionText').not($target).slideUp('fast');
+      $target.slideDown('fast');
+    }
+  }
+
+  /*
+  *   initHotJobsList
+  *
+  *
+  */
+  function initHotJobsList() {
+    $('.is-current .hotjobsList_description').show();
+    $('.js-hotjobsList_node').on('click', toggleHotJobsList);
+  }
+  function toggleHotJobsList() {
+    $('.js-hotjobsList_node').removeClass('is-current');
+    $(this).addClass('is-current');
+    var $target = $(this).find('.hotjobsList_description');
+    $('.hotjobsList_description').not($target).slideUp('fast');
+    $target.slideDown('fast');
+  }
+
+  /*
+  *   initMessageTab
+  *
+  *
+  */
+  function initMessageTab() {
+    $('.js-pageAccCaption').on('click', toggleMessageTab);
+  }
+  function toggleMessageTab(e) {
+    var $self = $(e.currentTarget);
+    $('.js-pageAccCaption, .js-pageAccVisual').removeClass('is-current');
+    $self.addClass('is-current');
+    $('.js-pageAccVisual').eq($self.index()).addClass('is-current');
+  }
+
+  /*
+  *   initInview
+  *
+  *
+  */
+  function initInview() {
+    PIZZA4PS.common.inview_set();
+  }
+
+  /*
+  * initTextEffect
+  *
+  */
+  var $pageLead = $('.js-pageLead');
+  var pageLeadHeight;
+  var pageLeadPos;
+  var textEffectFlg = true;
+  function initTextEffect() {
+    pageLeadHeight = $pageLead.height();
+    pageLeadPos = $pageLead.offset().top;
+    moveTextEffect();
+    PIZZA4PS.data.$window.on('resize', function () {
+      pageLeadHeight = $pageLead.height();
+      pageLeadPos = $pageLead.offset().top;
+    });
+    PIZZA4PS.data.$window.on('scroll resize', function () {
+      moveTextEffect();
+    });
+  }
+  function moveTextEffect() {
+    if (pageLeadPos > PIZZA4PS.data.scrollTop + PIZZA4PS.data.$window.height()) return;
+    var constNum = 70;
+    var enteredContentAmount = PIZZA4PS.data.$window.height() + PIZZA4PS.data.scrollTop - pageLeadPos;
+    var effectPosition;
+    effectPosition = 100 - enteredContentAmount / pageLeadHeight * constNum;
+    if (textEffectFlg && effectPosition > 0) {
+      // ターゲット領域アニメーション中
+      $pageLead.css('background-position-x', effectPosition + '%');
+    } else if (textEffectFlg && effectPosition <= 0) {
+      // ターゲット領域アニメーション完了
+      $pageLead.css('background-position-x', '0%');
+      textEffectFlg = false;
+    } else if (!textEffectFlg && effectPosition > 0) {
+      // ターゲット領域よりも下から戻ってくる時
+      textEffectFlg = true;
+    }
+  }
+
+  /*
+  * initInfoTab
+  *
+  */
+  function initInfoTab() {
+    $('.js-infoTabHead').on('click', toggleInfoTab);
+  }
+  function toggleInfoTab(e) {
+    var $self = $(e.currentTarget);
+    var $infoBody = $('.js-infoTabBody');
+    var $target = $infoBody.eq($self.index());
+    var currentClass = 'is-current';
+    $('.js-infoTabHead').add($infoBody).removeClass(currentClass);
+    $self.add($target).addClass(currentClass);
+  }
+
+  /*
+  * initMemberModal
+  *
+  */
+  function initMemberModal() {
+    $('.js-member').each(function () {
+      var memberObj = new MemberModal($(this));
+      memberObj.init();
+    });
+  }
+  var MemberModal = /*#__PURE__*/function () {
+    function MemberModal(target) {
+      _classCallCheck(this, MemberModal);
+      // target要素
+      this.target = target;
+      this.imgSrc = this.target.find('.js-memberImg').attr('data-delay');
+      this.name = this.target.find('.js-membeName').text();
+      this.job = this.target.find('.js-memberJob').text();
+      this.description = this.target.find('.js-memberDescription').text();
+
+      // モーダル要素
+      this.modal = $('.js-memberModal');
+      this.modalImg = $('.js-modalImg');
+      this.modalName = $('.js-modaName');
+      this.modalJob = $('.js-modalJob');
+      this.modalDescription = $('.js-modalDsescription');
+      this.closeButton = $('.js-modalClose');
+    }
+    _createClass(MemberModal, [{
+      key: "init",
+      value: function init() {
+        var _this = this;
+        this.target.on('click', function () {
+          return PIZZA4PS.data.$MQ != 'LANDSCAPE' ? _this.openModal() : null;
+        });
+        this.closeButton.on('click', function () {
+          return _this.closeModal();
+        });
+      }
+    }, {
+      key: "openModal",
+      value: function openModal() {
+        this.modalImg.attr('src', this.imgSrc);
+        this.modalName.text(this.name);
+        this.modalJob.text(this.job);
+        this.modalDescription.text(this.description);
+        this.modal.fadeIn();
+        PIZZA4PS.common.screenLock();
+      }
+    }, {
+      key: "closeModal",
+      value: function closeModal() {
+        this.modal.fadeOut();
+        PIZZA4PS.common.screenUnlock();
+      }
+    }]);
+    return MemberModal;
+  }();
+  /*
+  *   initCareerSlide
+  *
+  *
+  */
+  function initCareerSlide() {
+    $('.js-slideIndex').on('click', toggleCareerSlide);
+  }
+  function toggleCareerSlide(e) {
+    var $block = $('.js-slideBlock');
+    if ($block.is(':animated')) return;
+    $block.removeClass('is-active');
+    $(e.currentTarget).parent($block).addClass('is-active');
+  }
+
+  /*
+  *   initFindJob
+  *
+  *
+  */
+  function initFindJob() {
+    $('.js-searchForm').each(function () {
+      var formObj = new FindJob($(this));
+      formObj.init();
+    });
+  }
+  var FindJob = /*#__PURE__*/function () {
+    function FindJob(target) {
+      _classCallCheck(this, FindJob);
+      this.target = target;
+      this.selectBox = this.target.next('.js-searchSelect');
+      this.formText = this.target.find('.js-formText').add(this.selectBox.find('.js-selectCurrent'));
+      this.selectBoxClose = this.selectBox.find('.js-selectBoxClose');
+      this.selectItem = this.selectBox.find('li');
+      this.searchButton = $('.js-searchLink');
+      this.dataTarget = this.target.data('form');
+      this.currentClass = 'is-current';
+    }
+    _createClass(FindJob, [{
+      key: "init",
+      value: function init() {
+        var _this2 = this;
+        this.target.on('click', function () {
+          if (_this2.selectBox.is(':visible')) {
+            _this2.selectBox.hide();
+          } else {
+            _this2.selectBox.show();
+          }
+          if (PIZZA4PS.data.$MQ == 'PORTRAIT') {
+            PIZZA4PS.common.screenLock();
+          }
+        });
+        this.selectBoxClose.on('click', function () {
+          _this2.selectBox.hide();
+          PIZZA4PS.common.screenUnlock();
+        });
+        this.selectItem.on('click', function (e) {
+          _this2.setParam($(e.currentTarget));
+        });
+      }
+    }, {
+      key: "setParam",
+      value: function setParam($selected) {
+        var url = new URL(this.searchButton.attr('href'));
+
+        // カレント付与
+        this.formText.text($selected.text());
+        this.selectItem.removeClass(this.currentClass);
+        $selected.addClass(this.currentClass);
+        this.selectBox.hide();
+        PIZZA4PS.common.screenUnlock();
+
+        // ボタンのパラメータ書き換え
+        if ($selected.hasClass('js-searchReset')) {
+          url.searchParams.delete(this.dataTarget);
+        } else {
+          url.searchParams.set(this.dataTarget, $selected.data('id'));
+        }
+        this.searchButton.attr('href', url.toString());
+      }
+    }]);
+    return FindJob;
+  }();
+  /*
+  *   initLoadData
+  *
+  *
+  */
+  function initLoadData() {
+    $('[data-load-list]').each(function () {
+      var loadObj = new LoadData($(this));
+      loadObj.init();
+    });
+  }
+  var LoadData = /*#__PURE__*/function () {
+    function LoadData(target) {
+      _classCallCheck(this, LoadData);
+      this.target = target;
+      this.loadCount = this.target.data('load-list');
+      this.elCount = this.target.children().length;
+      this.visibleElCount = this.target.find('>:visible').length;
+      this.hiddenElCount = this.target.find('>:hidden').length;
+      this.button = this.target.next('.js-loadData');
+      this.start;
+      this.end;
+    }
+    _createClass(LoadData, [{
+      key: "init",
+      value: function init() {
+        var $self = this;
+        this.button.on('click', function () {
+          $self.showEl();
+        });
+      }
+    }, {
+      key: "showEl",
+      value: function showEl() {
+        this.start = this.visibleElCount + 1;
+        this.end = this.visibleElCount + this.loadCount;
+        this.target.find('>:nth-child(n+' + this.start + '):nth-of-type(-n+' + this.end + '):hidden').fadeIn();
+        this.visibleElCount = this.end;
+        if (this.visibleElCount > this.elCount) {
+          this.button.hide();
+        }
+      }
+    }]);
+    return LoadData;
+  }();
+  /*
+  *   initMembersPhoto
+  *
+  *
+  */
+  function initMembersPhoto() {
+    var photoObj = new MembersPhoto($('.js-members'));
+    photoObj.init();
+  }
+  var MembersPhoto = /*#__PURE__*/function () {
+    function MembersPhoto(target) {
+      _classCallCheck(this, MembersPhoto);
+      this.target = target;
+      this.photo = this.target.find('.js-membersImg');
+      this.top = this.target.offset().top;
+      this.left = this.target.offset().left;
+      this.width = this.target.width();
+      this.height = this.target.height();
+    }
+    _createClass(MembersPhoto, [{
+      key: "init",
+      value: function init() {
+        this.mousemoveEvent();
+        this.changeMqEvent();
+      }
+    }, {
+      key: "mousemoveEvent",
+      value: function mousemoveEvent() {
+        var $self = this;
+        $self.target.on('mousemove', function (e) {
+          if (PIZZA4PS.data.$MQ != 'LANDSCAPE') return;
+          $self.setPhotoTransform($self.calcMoveAmount(e.pageX - $self.left, $self.width), $self.calcMoveAmount(e.pageY - $self.top, $self.height), 0);
+        });
+      }
+    }, {
+      key: "calcMoveAmount",
+      value: function calcMoveAmount(pos, dim) {
+        return (pos - dim / 2) / dim * 5;
+      }
+    }, {
+      key: "changeMqEvent",
+      value: function changeMqEvent() {
+        var $self = this;
+        var oldMq;
+        PIZZA4PS.data.$window.on('load', function (e) {
+          oldMq = PIZZA4PS.data.$MQ;
+        });
+        PIZZA4PS.data.$window.on('resize', function (e) {
+          if (oldMq != PIZZA4PS.data.$MQ) {
+            $self.setPhotoTransform(0, 0, 0);
+            oldMq = PIZZA4PS.data.$MQ;
+          }
+        });
+      }
+    }, {
+      key: "setPhotoTransform",
+      value: function setPhotoTransform() {
+        this.photo.css('transform', "translate3d(".concat(arguments.length <= 0 ? undefined : arguments[0], "%,").concat(arguments.length <= 1 ? undefined : arguments[1], "%,").concat(arguments.length <= 2 ? undefined : arguments[2], ")"));
+      }
+    }]);
+    return MembersPhoto;
+  }();
+  /*
+  *   initCareerBackground
+  *
+  *
+  */
+  var changePos = 0;
+  function initCareerBackground() {
+    setCareerBackgroundData();
+    PIZZA4PS.data.$window.on('load resize', function () {
+      setCareerBackgroundData();
+    });
+    PIZZA4PS.data.$window.on('scroll', judgeCareerBackground);
+  }
+  function setCareerBackgroundData() {
+    changePos = $('.js-fvBlock-2').offset().top;
+  }
+  function judgeCareerBackground() {
+    if (PIZZA4PS.data.scrollTop > changePos - PIZZA4PS.data.winH / 2) {
+      $('.js-contentBg').attr('data-current', '2');
+    } else {
+      $('.js-contentBg').attr('data-current', '1');
+    }
+  }
+
+  /*
+  *   initCareerMovie
+  *
+  *
+  */
+  function initCareerMovie() {
+    $(window).on('scroll', function () {
+      var $movie = $('.js-careerInfoMovie');
+      // let PIZZA4PS.data.winH = $(window).height();
+      var scrollTop = $(window).scrollTop();
+      var offset = $movie.offset().top;
+      var elementHeight = $movie.height();
+
+      // 要素がウィンドウ入った時のスクロール位置
+      var triggerPoint = offset - PIZZA4PS.data.winH;
+
+      // スクロール位置に応じて拡大率を計算
+      var scale = 0.8 + (PIZZA4PS.data.scrollTop - triggerPoint + PIZZA4PS.data.winH / 2) / PIZZA4PS.data.winH * 0.2;
+      scale = Math.min(Math.max(scale, 0.8), 1); // scaleの値を0.8から1の間に制約
+
+      $movie.css('transform', 'scale(' + scale + ')');
+    });
+  }
+  return {
+    init: init
+  };
+}();
+PIZZA4PS.common.init(PIZZA4PS.pageScript.init());
